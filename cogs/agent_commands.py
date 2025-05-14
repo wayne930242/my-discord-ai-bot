@@ -10,6 +10,7 @@ from google.adk.runners import Runner
 from utils.call_agent import call_agent_async
 
 DM_ID_WHITELIST = os.getenv("DM_ID_WHITE_LIST", "").split(",")
+SERVER_ID_WHITELIST = os.getenv("SERVER_ID_WHITE_LIST", "").split(",")
 
 
 class AgentCommands(commands.Cog):
@@ -58,6 +59,8 @@ class AgentCommands(commands.Cog):
             session_key = f"dm-{message.author.id}"
         else:
             guild_id = message.guild.id if message.guild else message.author.id
+            if str(guild_id) not in SERVER_ID_WHITELIST:
+                return
             session_key = f"{guild_id}-{message.channel.id}"
 
         if session_key not in self.user_sessions:
