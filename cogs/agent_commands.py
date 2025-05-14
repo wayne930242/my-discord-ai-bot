@@ -12,7 +12,8 @@ class AgentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.APP_NAME = "elminster"
-        db_url = "sqlite:///./my_agent_data.db"
+        db_url = "sqlite:///./data/my_agent_data.db"
+
         self.session_service = DatabaseSessionService(db_url)
         self.user_sessions = {}
 

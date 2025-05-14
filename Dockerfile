@@ -9,8 +9,9 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
+RUN mkdir -p /app/data
+VOLUME ["/app/data"]
+
 COPY . .
-ENV DISCORD_BOT_HOST=0.0.0.0
-ENV DISCORD_BOT_PORT=8000
 
 CMD ["python", "bot.py"]
