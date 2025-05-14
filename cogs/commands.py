@@ -1,4 +1,6 @@
+import asyncio
 from discord.ext import commands
+from elminster.agent import root_agent
 
 
 class GeneralCommands(commands.Cog):
@@ -11,16 +13,6 @@ class GeneralCommands(commands.Cog):
         if ctx.author == self.bot.user:
             return
         await ctx.send("Hello there!")
-
-    @commands.command(name="ask", help="Ask a question (ADK integration todo)")
-    async def ask_command(self, ctx, *, user_query: str):
-        """
-        Ask a question, the bot will record it.
-        Usage: !ask [your question]
-        """
-        if ctx.author == self.bot.user:
-            return
-        await ctx.send(f"You asked: {user_query} (ADK integration todo)")
 
     @commands.Cog.listener()
     async def on_message(self, message):
