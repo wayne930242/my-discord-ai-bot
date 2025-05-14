@@ -2,13 +2,14 @@ import asyncio
 import os
 import discord
 import contextlib
+from dotenv import load_dotenv
 from discord.ext import commands
 from elminster.agent import root_agent
 from google.adk.sessions import DatabaseSessionService
 from google.adk.runners import Runner
 from utils.call_agent import call_agent_async
 
-DM_ID_WHITELIST = os.getenv("DM_ID_WHITELIST", "").split(",")
+DM_ID_WHITELIST = os.getenv("DM_ID_WHITE_LIST", "").split(",")
 
 
 class AgentCommands(commands.Cog):
@@ -37,7 +38,7 @@ class AgentCommands(commands.Cog):
 
         is_dm = isinstance(message.channel, discord.DMChannel)
 
-        if is_dm and message.author.id not in DM_ID_WHITELIST:
+        if is_dm and str(message.author.id) not in DM_ID_WHITELIST:
             return
 
         is_mention = self.bot.user in message.mentions
