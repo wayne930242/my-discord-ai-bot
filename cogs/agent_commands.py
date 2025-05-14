@@ -23,7 +23,7 @@ class AgentCommands(commands.Cog):
             while True:
                 dots = (dots % 6) + 1
                 await msg.edit(content="_（沉思中" + "." * dots + "）_")
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(1)
         except asyncio.CancelledError:
             return
 
