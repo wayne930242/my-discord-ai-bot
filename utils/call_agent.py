@@ -31,4 +31,6 @@ async def call_agent_async(query: str, runner, user_id, session_id):
                 )
             # Add more checks here if needed (e.g., specific error codes)
             break  # Stop processing events once the final response is found
+
+    print(f"<<< Agent Response: {final_response_text}")
     return final_response_text

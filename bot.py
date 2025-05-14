@@ -37,14 +37,6 @@ async def load_cogs():
                 print(f"Failed to load Cog {filename[:-3]}: {e}")
 
 
-@bot.event
-async def on_message(message):
-    """Process commands for messages"""
-    if message.author == bot.user:
-        return
-    await bot.process_commands(message)
-
-
 try:
     bot.run(DISCORD_TOKEN)
 except discord.errors.LoginFailure:

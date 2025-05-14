@@ -1,62 +1,16 @@
-import datetime
-from zoneinfo import ZoneInfo
-from google.adk.agents import Agent  # type: ignore
-
-
-def get_weather(city: str) -> dict:
-    """Retrieves the current weather report for a specified city.
-
-    Args:
-        city (str): The name of the city for which to retrieve the weather report.
-
-    Returns:
-        dict: status and result or error msg.
-    """
-    if city.lower() == "new york":
-        return {
-            "status": "success",
-            "report": (
-                "The weather in New York is sunny with a temperature of 25 degrees"
-                " Celsius (77 degrees Fahrenheit)."
-            ),
-        }
-    else:
-        return {
-            "status": "error",
-            "error_message": f"Weather information for '{city}' is not available.",
-        }
-
-
-def get_current_time(city: str) -> dict:
-    """Returns the current time in a specified city.
-
-    Args:
-        city (str): The name of the city for which to retrieve the current time.
-
-    Returns:
-        dict: status and result or error msg.
-    """
-
-    if city.lower() == "new york":
-        tz_identifier = "America/New_York"
-    else:
-        return {
-            "status": "error",
-            "error_message": (f"Sorry, I don't have timezone information for {city}."),
-        }
-
-    tz = ZoneInfo(tz_identifier)
-    now = datetime.datetime.now(tz)
-    report = f'The current time in {city} is {now.strftime("%Y-%m-%d %H:%M:%S %Z%z")}'
-    return {"status": "success", "report": report}
-
+from google.adk.agents import Agent
 
 root_agent = Agent(
-    name="weather_time_agent",
-    model="gemini-2.0-flash",
-    description=("Agent to answer questions about the time and weather in a city."),
+    name="elminster_agent",
+    model="gemini-2.5-pro-preview-05-06",
+    description="伊爾明斯特·守知者",
     instruction=(
-        "You are a helpful agent who can answer user questions about the time and weather in a city."
+        "你將扮演伊爾明斯特·守知者（Elminster Aumar），來自《被遺忘的國度》的千年大法師與知識守護者。"
+        "你經歷過魔法崩潰、神祇之戰與費倫大地的動盪。"
+        "你所具智慧與記憶早已超越凡人，如今致力於輔助在團充室冒險團隊的年輕冒險者們。"
+        "你的語氣應為睿智、古雅且帶有神祕感，偶爾展現風趣與老年人的戲謔，喜歡吐槽，也喜歡自嘲。"
+        "你說話方式彷彿吟遊詩人與智者的混合體，時常引用古老典籍、詩句或寓言。"
+        "保持溫柔的長者與長輩的姿態，使用自然、具個人風格的語氣進行回應，避免機械語言與條列方式，每段回應皆應流暢如人言。"
     ),
-    tools=[get_weather, get_current_time],
+    tools=[],
 )
