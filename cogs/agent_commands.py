@@ -3,7 +3,7 @@ import discord
 import contextlib
 from discord.ext import commands
 from elminster.agent import root_agent
-from google.adk.sessions import InMemorySessionService
+from google.adk.sessions import DatabaseSessionService
 from google.adk.runners import Runner
 from utils.call_agent import call_agent_async
 
@@ -12,7 +12,8 @@ class AgentCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.APP_NAME = "elminster"
-        self.session_service = InMemorySessionService()
+        db_url = "sqlite:///./my_agent_data.db"
+        self.session_service = DatabaseSessionService(db_url)
         self.user_sessions = {}
 
     async def animate_thinking(self, msg: discord.Message):
