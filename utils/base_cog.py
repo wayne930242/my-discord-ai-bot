@@ -31,7 +31,7 @@ class BaseCog(commands.Cog):
     async def animate_thinking(self, message: discord.Message):
         try:
             while True:
-                for char in ["/", "-", "\\", "|"]:
+                for char in ["＼", "—", "／", "|"]:
                     await message.edit(content=f"_{char}（沉思著...）_")
                     await asyncio.sleep(0.5)
         except asyncio.CancelledError:
@@ -127,13 +127,11 @@ class BaseCog(commands.Cog):
                 if not part_content:
                     continue
 
-                # 第一次顯示
                 if first_part:
                     await thinking_msg.edit(content=part_content)
                     full_response_parts.append(part_content)
                     first_part = False
                 else:
-                    # 若可合併到最後一則訊息，就編輯；否則新發一則
                     last = full_response_parts[-1]
                     if len(last) + len(part_content) < 1980:
                         full_response_parts[-1] = last + part_content

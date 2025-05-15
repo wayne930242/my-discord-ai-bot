@@ -9,8 +9,8 @@ class StrahdCommands(BaseCog):
     def __init__(self, bot: commands.Bot):
         load_dotenv()
         use_map = {
-            "default": "*史特拉德閉上了雙眼，彷彿正在計畫著什麼...*",
-            "search_agent": "*史特拉德閉上了雙眼，聆聽著黑暗中的低語...*",
+            "default": "史特拉德閉上了雙眼，彷彿正在計畫著什麼...",
+            "search_agent": "史特拉德閉上了雙眼，聆聽著黑暗中的低語...",
         }
         err_msg = "哼嗯......"
         super().__init__(

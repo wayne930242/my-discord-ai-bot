@@ -89,7 +89,7 @@ async def stream_agent_responses(
                     )
                 elif hasattr(part, "function_call") and part.function_call:
                     func_name = part.function_call.name
-                    message_to_yield = use_function_map[func_name]
+                    message_to_yield = "（" + use_function_map[func_name] + "）"
                     print(
                         f"<<< Agent function_call request (yielding message for): {func_name}"
                     )
@@ -98,19 +98,19 @@ async def stream_agent_responses(
                     yield message_to_yield
                     event_yielded_content = True
 
-        if (
-            event.actions
-            and hasattr(event.actions, "tool_code")
-            and event.actions.tool_code
-        ):
-            if event.actions.tool_code.parts:
-                tool_code_text = event.actions.tool_code.parts[0].text
-                message_to_yield = f"🖥️ *System is executing tool code...*"
-                print(
-                    f"<<< System executing tool_code (via event.actions - yielding message): {tool_code_text[:100]}..."
-                )
-                yield message_to_yield
-                event_yielded_content = True
+        # if (
+        #     event.actions
+        #     and hasattr(event.actions, "tool_code")
+        #     and event.actions.tool_code
+        # ):
+        #     if event.actions.tool_code.parts:
+        #         tool_code_text = event.actions.tool_code.parts[0].text
+        #         message_to_yield = f"🖥️ *System is executing tool code...*"
+        #         print(
+        #             f"<<< System executing tool_code (via event.actions - yielding message): {tool_code_text[:100]}..."
+        #         )
+        #         yield message_to_yield
+        #         event_yielded_content = True
 
         if event.is_final_response():
             print(f"<<< Final event received (ID: {getattr(event, 'id', 'N/A')}).")
