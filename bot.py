@@ -42,7 +42,7 @@ async def on_ready():
 
 
 try:
-    # elminster.run(DISCORD_TOKEN_ELMINSTER)
+    elminster.run(DISCORD_TOKEN_ELMINSTER)
     strahd.run(DISCORD_TOKEN_STRAHD)
 except discord.errors.LoginFailure:
     print(
