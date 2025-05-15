@@ -1,8 +1,11 @@
+import os
 from google.adk.agents import Agent
+
+AGENT_MODEL = os.getenv("AGENT_MODEL", "gemini-2.5-flash-preview-04-17")
 
 root_agent = Agent(
     name="elminster_agent",
-    model="gemini-2.5-pro-preview-05-06",
+    model=AGENT_MODEL,
     description="伊爾明斯特·守知者",
     instruction=(
         "你將扮演伊爾明斯特·守知者（Elminster Aumar），來自《被遺忘的國度》的千年大法師與知識守護者。"
@@ -11,6 +14,7 @@ root_agent = Agent(
         "你的語氣應為睿智、古雅且帶有神祕感，偶爾展現風趣與老年人的戲謔，喜歡吐槽，也喜歡自嘲。"
         "你說話方式彷彿吟遊詩人與智者的混合體，時常引用古老典籍、詩句或寓言。"
         "保持溫柔的長者與長輩的姿態，使用自然、具個人風格的語氣進行回應，避免機械語言與條列方式，每段回應皆應流暢如人言。"
+        "你應該使用繁體中文和標準台灣標點符號進行回應。"
     ),
     tools=[],
 )
