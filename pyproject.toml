@@ -9,5 +9,6 @@ dependencies = [
     "discord>=2.3.2",
     "dotenv>=0.9.9",
     "google-adk>=0.5.0",
+    "langchain-community>=0.3.24",
     "mypy>=1.15.0",
 ]
