@@ -5,40 +5,45 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
+DISCORD_TOKEN_ELMINSTER = os.getenv("DISCORD_TOKEN_ELMINSTER")
+DISCORD_TOKEN_STRAHD = os.getenv("DISCORD_TOKEN_STRAHD")
 
-if DISCORD_TOKEN is None:
-    print("Error: DISCORD_TOKEN is not set in the .env file.")
+if DISCORD_TOKEN_ELMINSTER is None:
+    print("Error: DISCORD_TOKEN_ELMINSTER is not set in the .env file.")
     exit()
+
+if DISCORD_TOKEN_STRAHD is None:
+    print("Error: DISCORD_TOKEN_STRAHD is not set in the .env file.")
+    exit()
+
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
 
-bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+elminster = commands.Bot(command_prefix="!", intents=intents, help_command=None)
+strahd = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
 
-@bot.event
+@elminster.event
 async def on_ready():
-    print(f"Logged in as {bot.user.name} (ID: {bot.user.id})")
+    print(f"Logged in as {elminster.user.name} (ID: {elminster.user.id})")
     print("Bot is ready and online!")
     print("------")
-    await load_cogs()
+    await elminster.load_extension("cogs.elminster_commands")
 
 
-async def load_cogs():
-    """Load all .py files in the cogs folder as extensions"""
-    for filename in os.listdir("./cogs"):
-        if filename.endswith(".py"):
-            try:
-                await bot.load_extension(f"cogs.{filename[:-3]}")
-                print(f"Successfully loaded Cog: {filename[:-3]}")
-            except Exception as e:
-                print(f"Failed to load Cog {filename[:-3]}: {e}")
+@strahd.event
+async def on_ready():
+    print(f"Logged in as {strahd.user.name} (ID: {strahd.user.id})")
+    print("Bot is ready and online!")
+    print("------")
+    await strahd.load_extension("cogs.strahd_commands")
 
 
 try:
-    bot.run(DISCORD_TOKEN)
+    # elminster.run(DISCORD_TOKEN_ELMINSTER)
+    strahd.run(DISCORD_TOKEN_STRAHD)
 except discord.errors.LoginFailure:
     print(
         "Login failed: Please check your DISCORD_TOKEN is correct and Privileged Gateway Intents is correctly configured."

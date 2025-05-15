@@ -1,9 +1,5 @@
 from google.genai import types  # For creating message Content/Parts
 
-MAGIC_SPELLS = {
-    "search_agent": "通曉傳奇",
-}
-
 
 async def call_agent_async(query: str, runner, user_id, session_id):
     """Sends a query to the agent and prints the final response."""
@@ -40,7 +36,9 @@ async def call_agent_async(query: str, runner, user_id, session_id):
     return final_response_text
 
 
-async def stream_agent_responses(query: str, runner, user_id, session_id):
+async def stream_agent_responses(
+    query: str, runner, user_id, session_id, use_function_map=None
+):
     print(f"\n>>> User Query for user {user_id}, session {session_id}: {query}")
 
     user_content = types.Content(role="user", parts=[types.Part(text=query)])
@@ -91,7 +89,7 @@ async def stream_agent_responses(query: str, runner, user_id, session_id):
                     )
                 elif hasattr(part, "function_call") and part.function_call:
                     func_name = part.function_call.name
-                    message_to_yield = f"🪄 *伊爾明斯特詠唱起複雜的咒文，施展起{MAGIC_SPELLS[func_name] or "令人顫抖的魔法"}...*"
+                    message_to_yield = use_function_map[func_name]
                     print(
                         f"<<< Agent function_call request (yielding message for): {func_name}"
                     )
