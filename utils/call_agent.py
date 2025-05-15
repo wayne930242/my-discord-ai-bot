@@ -1,9 +1,13 @@
 from google.genai import types  # For creating message Content/Parts
 
+MAGIC_SPELLS = {
+    "search_agent": "通曉傳奇",
+}
+
 
 async def call_agent_async(query: str, runner, user_id, session_id):
     """Sends a query to the agent and prints the final response."""
-    print(f"\n>>> User Query: {query}")
+    print(f"\n>>> User Query for user {user_id}, session {session_id}: {query}")
 
     # Prepare the user's message in ADK format
     content = types.Content(role="user", parts=[types.Part(text=query)])
@@ -34,3 +38,95 @@ async def call_agent_async(query: str, runner, user_id, session_id):
 
     print(f"<<< Agent Response: {final_response_text}")
     return final_response_text
+
+
+async def stream_agent_responses(query: str, runner, user_id, session_id):
+    print(f"\n>>> User Query for user {user_id}, session {session_id}: {query}")
+
+    user_content = types.Content(role="user", parts=[types.Part(text=query)])
+    event_yielded_content = False
+
+    async for event in runner.run_async(
+        user_id=user_id, session_id=session_id, new_message=user_content
+    ):
+        if hasattr(event, "content") and event.content:
+            if event.content.parts:
+                for i, part_debug in enumerate(event.content.parts):
+                    part_info = []
+                    if part_debug.text:
+                        part_info.append("Has Text")
+                    if (
+                        hasattr(part_debug, "function_call")
+                        and part_debug.function_call
+                    ):
+                        part_info.append(
+                            f"Has FunctionCall (name: {part_debug.function_call.name})"
+                        )
+
+        if hasattr(event, "actions") and event.actions:
+            action_debug_info = []
+            if hasattr(event.actions, "escalate"):
+                action_debug_info.append(
+                    f"Escalate={'Set' if event.actions.escalate else 'None'}"
+                )
+            else:
+                action_debug_info.append("Escalate=NotPresent")
+
+            if hasattr(event.actions, "tool_code"):
+                action_debug_info.append(
+                    f"ToolCode={'Set' if event.actions.tool_code else 'None'}"
+                )
+            else:
+                action_debug_info.append("ToolCode=NotPresent")
+
+        event_yielded_content = False
+
+        if event.content and event.content.role == "model" and event.content.parts:
+            for part in event.content.parts:
+                message_to_yield = None
+                if part.text:
+                    message_to_yield = part.text
+                    print(
+                        f'<<< Agent text part (yielding): "{message_to_yield[:100]}..."'
+                    )
+                elif hasattr(part, "function_call") and part.function_call:
+                    func_name = part.function_call.name
+                    message_to_yield = f"🪄 *伊爾明斯特詠唱起複雜的咒文，施展起{MAGIC_SPELLS[func_name] or "令人顫抖的魔法"}...*"
+                    print(
+                        f"<<< Agent function_call request (yielding message for): {func_name}"
+                    )
+
+                if message_to_yield:
+                    yield message_to_yield
+                    event_yielded_content = True
+
+        if (
+            event.actions
+            and hasattr(event.actions, "tool_code")
+            and event.actions.tool_code
+        ):
+            if event.actions.tool_code.parts:
+                tool_code_text = event.actions.tool_code.parts[0].text
+                message_to_yield = f"🖥️ *System is executing tool code...*"
+                print(
+                    f"<<< System executing tool_code (via event.actions - yielding message): {tool_code_text[:100]}..."
+                )
+                yield message_to_yield
+                event_yielded_content = True
+
+        if event.is_final_response():
+            print(f"<<< Final event received (ID: {getattr(event, 'id', 'N/A')}).")
+            if (
+                event.actions
+                and hasattr(event.actions, "escalate")
+                and event.actions.escalate
+            ):
+                escalation_message = f"⚠️ *Agent escalated*: {event.error_message or 'No specific message.'}"
+                print(f"<<< Agent escalated (yielding message): {escalation_message}")
+                yield escalation_message
+
+            if not event_yielded_content:
+                print("<<< Final event did not yield new textual/tool content itself.")
+            return
+
+    print("<<< Stream ended unexpectedly without a designated final response event.")
