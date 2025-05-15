@@ -31,8 +31,8 @@ class BaseCog(commands.Cog):
     async def animate_thinking(self, message: discord.Message):
         try:
             while True:
-                for char in ["＼", "—", "／", "|"]:
-                    await message.edit(content=f"_{char}（沉思著...）_")
+                for char in ["`/`", "`-`", "`\\`", "`|`"]:
+                    await message.edit(content=f"_{char} （沉思著...）_")
                     await asyncio.sleep(0.5)
         except asyncio.CancelledError:
             pass
