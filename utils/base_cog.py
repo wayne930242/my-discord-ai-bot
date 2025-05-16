@@ -22,7 +22,11 @@ class BaseCog(commands.Cog):
     ):
         self.bot = bot
         self.APP_NAME = app_name
-        self.session_service = DatabaseSessionService(db_url)
+        try:
+            self.session_service = DatabaseSessionService(db_url)
+            print(f"Session Service: {self.session_service}")
+        except Exception as e:
+            print(f"❌ Cannot create session_service, error: {e}")
         self.USE_FUNCTION_MAP = use_function_map
         self.ERROR_MESSAGE = error_message
         self.user_sessions: dict[str, str] = {}

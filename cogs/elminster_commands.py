@@ -1,15 +1,19 @@
+import os
 from utils.base_cog import BaseCog
 from elminster.agent import elminster_agent, USE_FUNCTION_MAP, ERROR_MESSAGE
-
+from dotenv import load_dotenv
 from discord.ext import commands
 
 
 class ElminsterCommands(BaseCog):
     def __init__(self, bot: commands.Bot):
+        load_dotenv()
+        db_url = os.getenv("DB_URL", "sqlite:///./data/agent_data.db")
+
         super().__init__(
             bot=bot,
             app_name="elminster",
-            db_url="sqlite:///./data/elminster_agent_data.db",
+            db_url=db_url,
             use_function_map=USE_FUNCTION_MAP,
             error_message=ERROR_MESSAGE,
             agent=elminster_agent,
