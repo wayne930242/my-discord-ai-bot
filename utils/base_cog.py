@@ -32,17 +32,6 @@ class BaseCog(commands.Cog):
         self.user_sessions: dict[str, str] = {}
         self.agent = agent
 
-    async def animate_thinking(self, message: discord.Message):
-        try:
-            while True:
-                for char in ["`/`", "`-`", "`\\`", "`|`"]:
-                    await message.edit(content=f"_{char} （沉思著...）_")
-                    await asyncio.sleep(0.5)
-        except asyncio.CancelledError:
-            pass
-        except discord.errors.NotFound:
-            pass
-
     def _get_user_adk_id(self, message: discord.Message) -> str:
         return f"discord_user_{message.author.id}"
 
@@ -96,9 +85,6 @@ class BaseCog(commands.Cog):
         except RuntimeError:
             return await message.channel.send(self.ERROR_MESSAGE)
 
-        thinking_msg = await message.channel.send("_（沉思著...）_")
-        anim_task = asyncio.create_task(self.animate_thinking(thinking_msg))
-
         try:
             runner = Runner(
                 app_name=self.APP_NAME,
@@ -106,9 +92,7 @@ class BaseCog(commands.Cog):
                 agent=self.agent,
             )
 
-            first_part = True
-            full_response_parts: list[str] = []
-
+            full_response = ""
             async for part_data in stream_agent_responses(
                 query=query,
                 runner=runner,
@@ -116,73 +100,23 @@ class BaseCog(commands.Cog):
                 session_id=session_id,
                 use_function_map=self.USE_FUNCTION_MAP,
             ):
-                if anim_task and not anim_task.done():
-                    anim_task.cancel()
-                    with contextlib.suppress(asyncio.CancelledError):
-                        await anim_task
-
                 if isinstance(part_data, str):
                     part_content = part_data
-                    is_function_call = False
                 else:
                     part_content = part_data.get("message", "")
-                    is_function_call = part_data.get("is_function_call", False)
 
-                if not part_content:
-                    continue
+                if part_content:
+                    full_response += part_content
 
-                if first_part:
-                    try:
-                        await thinking_msg.edit(content=part_content)
-                    except Exception as log_e:
-                        print(
-                            f"[DEBUG] Failed to edit thinking_msg on first part: {log_e}"
-                        )
-                        raise
-                    full_response_parts.append(part_content)
-                    first_part = False
-                else:
-                    last = full_response_parts[-1]
-                    if len(last) + len(part_content) < 1980:
-                        full_response_parts[-1] = last + part_content
-                        try:
-                            await thinking_msg.edit(content=full_response_parts[-1])
-                        except Exception as log_e:
-                            print(
-                                f"[DEBUG] Failed to edit thinking_msg on merge: {log_e}"
-                            )
-                            raise
-                    else:
-                        try:
-                            await message.channel.send(part_content)
-                        except Exception as e:
-                            print(f"❌ Cannot send message, error: {e}")
-
-            if first_part:
-                try:
-                    await thinking_msg.edit(content="No response from agent.")
-                except Exception as log_e:
-                    print(
-                        f"[DEBUG] Failed to edit thinking_msg for empty response: {log_e}"
-                    )
-                    await message.channel.send("No response from agent.")
+            if not full_response:
+                await message.channel.send("No response from agent.")
+            else:
+                for chunk in [
+                    full_response[i : i + 2000]
+                    for i in range(0, len(full_response), 2000)
+                ]:
+                    await message.channel.send(chunk)
 
         except Exception as e:
             print(f"[BaseCog_on_message] Error processing message: {e}")
-            if anim_task and not anim_task.done():
-                anim_task.cancel()
-            try:
-                await thinking_msg.edit(content=self.ERROR_MESSAGE)
-            except discord.errors.NotFound as nf:
-                print(
-                    f"[DEBUG] thinking_msg not found when editing error message: {nf}"
-                )
-                await message.channel.send(self.ERROR_MESSAGE)
-            except Exception as log_e:
-                print(f"[DEBUG] Failed to edit error message: {log_e}")
-                await message.channel.send(self.ERROR_MESSAGE)
-        finally:
-            if anim_task and not anim_task.done():
-                anim_task.cancel()
-                with contextlib.suppress(asyncio.CancelledError):
-                    await anim_task
+            await message.channel.send(self.ERROR_MESSAGE)
