@@ -1,24 +1,16 @@
 from utils.base_cog import BaseCog
-from dotenv import load_dotenv
-from strahd.agent import strahd_agent
-
+from strahd.agent import strahd_agent, USE_FUNCTION_MAP, ERROR_MESSAGE
 from discord.ext import commands
 
 
 class StrahdCommands(BaseCog):
     def __init__(self, bot: commands.Bot):
-        load_dotenv()
-        use_map = {
-            "default": "史特拉德閉上了雙眼，彷彿正在計畫著什麼...",
-            "search_agent": "史特拉德閉上了雙眼，聆聽著黑暗中的低語...",
-        }
-        err_msg = "哼嗯......"
         super().__init__(
             bot=bot,
             app_name="strahd",
-            db_url="sqlite:///./data/my_agent_data.db",
-            use_function_map=use_map,
-            error_message=err_msg,
+            db_url="sqlite:///./data/strahd_agent_data.db",
+            use_function_map=USE_FUNCTION_MAP,
+            error_message=ERROR_MESSAGE,
             agent=strahd_agent,
         )
 

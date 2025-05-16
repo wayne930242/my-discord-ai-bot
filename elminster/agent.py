@@ -30,6 +30,12 @@ TOOLS_INSTRUCTION = (
     "1. 法術「通曉傳奇（Legend Lore）」：他是網路搜尋專家，當使用者的問題涉及現代資訊、即時資訊、流行文化時，先進行搜尋。"
 )
 
+USE_FUNCTION_MAP = {
+    "default": "🪄 伊爾明斯特詠唱起複雜的咒文，施展起令人顫抖的魔法...",
+    "search_agent": "🪄 伊爾明斯特喃喃自語著，施展一個通曉傳奇...",
+}
+ERROR_MESSAGE = "咳咳...現在是老夫的休息時間......"
+
 search_agent = create_search_agent()
 search_tool = AgentTool(agent=search_agent)
 

@@ -29,6 +29,12 @@ TOOLS_INSTRUCTION = (
     "1. 聆聽低語：網路搜尋專家，當使用者的問題涉及現代資訊、即時資訊、流行文化時，先進行搜尋。"
 )
 
+USE_FUNCTION_MAP = {
+    "default": "史特拉德閉上了雙眼，彷彿正在計畫著什麼...",
+    "search_agent": "史特拉德閉上了雙眼，聆聽著黑暗中的低語...",
+}
+ERROR_MESSAGE = "哼嗯......"
+
 search_agent = create_search_agent()
 search_tool = AgentTool(agent=search_agent)
 
