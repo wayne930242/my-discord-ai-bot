@@ -1,4 +1,3 @@
-# main.py
 import os
 import asyncio
 import discord
@@ -49,10 +48,14 @@ async def global_on_message(bot: commands.Bot, message: discord.Message):
     await bot.process_commands(message)
 
 
-for bot in (elminster, strahd):
+def register_on_message(bot: commands.Bot):
     @bot.event
     async def on_message(message: discord.Message):
         await global_on_message(bot, message)
+
+
+for bot in (elminster, strahd):
+    register_on_message(bot)
 
 
 @elminster.event

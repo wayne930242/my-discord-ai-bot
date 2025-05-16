@@ -40,7 +40,6 @@ async def stream_agent_responses(
     query: str, runner, user_id, session_id, use_function_map=None
 ):
     print(f"\n>>> User Query for user {user_id}, session {session_id}: {query}")
-
     user_content = types.Content(role="user", parts=[types.Part(text=query)])
     event_yielded_content = False
 
@@ -69,7 +68,6 @@ async def stream_agent_responses(
                 )
             else:
                 action_debug_info.append("Escalate=NotPresent")
-
             if hasattr(event.actions, "tool_code"):
                 action_debug_info.append(
                     f"ToolCode={'Set' if event.actions.tool_code else 'None'}"
@@ -82,38 +80,37 @@ async def stream_agent_responses(
         if event.content and event.content.role == "model" and event.content.parts:
             for part in event.content.parts:
                 message_to_yield = None
+
                 if part.text:
                     message_to_yield = part.text
                     print(
                         f'<<< Agent text part (yielding): "{message_to_yield[:100]}..."'
                     )
+
                 elif hasattr(part, "function_call") and part.function_call:
                     func_name = part.function_call.name
-                    message_to_yield = "（" + use_function_map[func_name] + "）"
-                    print(
-                        f"<<< Agent function_call request (yielding message for): {func_name}"
-                    )
+
+                    if use_function_map and func_name in use_function_map:
+                        message_to_yield = "（" + use_function_map[func_name] + "）"
+                        print(
+                            f"<<< Agent function_call received: {func_name} — yielding mapped string only (no execution)."
+                        )
+                        print(
+                            f"⚠️ [Warning Suppressed] Non-text part detected (function_call), but converted to message: '{message_to_yield}'"
+                        )
+                    else:
+                        message_to_yield = f"⚠️ [Unknown FunctionCall]: {func_name}"
+                        print(
+                            f"⚠️ [Unhandled FunctionCall] {func_name} not in use_function_map — yielded fallback message."
+                        )
 
                 if message_to_yield:
                     yield message_to_yield
                     event_yielded_content = True
 
-        # if (
-        #     event.actions
-        #     and hasattr(event.actions, "tool_code")
-        #     and event.actions.tool_code
-        # ):
-        #     if event.actions.tool_code.parts:
-        #         tool_code_text = event.actions.tool_code.parts[0].text
-        #         message_to_yield = f"🖥️ *System is executing tool code...*"
-        #         print(
-        #             f"<<< System executing tool_code (via event.actions - yielding message): {tool_code_text[:100]}..."
-        #         )
-        #         yield message_to_yield
-        #         event_yielded_content = True
-
         if event.is_final_response():
             print(f"<<< Final event received (ID: {getattr(event, 'id', 'N/A')}).")
+
             if (
                 event.actions
                 and hasattr(event.actions, "escalate")
@@ -125,6 +122,7 @@ async def stream_agent_responses(
 
             if not event_yielded_content:
                 print("<<< Final event did not yield new textual/tool content itself.")
+
             return
 
     print("<<< Stream ended unexpectedly without a designated final response event.")
