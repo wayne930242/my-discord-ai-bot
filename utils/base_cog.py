@@ -92,7 +92,6 @@ class BaseCog(commands.Cog):
                 agent=self.agent,
             )
 
-            full_response = ""
             async for part_data in stream_agent_responses(
                 query=query,
                 runner=runner,
@@ -105,15 +104,12 @@ class BaseCog(commands.Cog):
                 else:
                     part_content = part_data.get("message", "")
 
-                if part_content:
-                    full_response += part_content
+                if not part_content:
+                    continue
 
-            if not full_response:
-                await message.channel.send("No response from agent.")
-            else:
                 for chunk in [
-                    full_response[i : i + 2000]
-                    for i in range(0, len(full_response), 2000)
+                    part_content[i : i + 2000]
+                    for i in range(0, len(part_content), 2000)
                 ]:
                     await message.channel.send(chunk)
 
