@@ -21,6 +21,8 @@ async def call_agent_async(query: str, runner, user_id, session_id):
         # Key Concept: is_final_response() marks the concluding message for the turn.
         if event.is_final_response():
             if event.content and event.content.parts:
+                for part in event.content.parts:
+                    print("DEBUG part.text:", repr(part.text))
                 # Assuming text response in the first part
                 final_response_text = event.content.parts[0].text
             elif (

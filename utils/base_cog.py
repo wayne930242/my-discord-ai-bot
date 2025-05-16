@@ -104,11 +104,10 @@ class BaseCog(commands.Cog):
                 else:
                     part_content = part_data.get("message", "")
 
-                if not part_content:
-                    continue
-
                 for chunk in [
-                    part_content[i : i + 2000]
+                    part_content.replace("<start_of_audio>", "").replace(
+                        "<end_of_audio>", ""
+                    )[i : i + 2000]
                     for i in range(0, len(part_content), 2000)
                 ]:
                     await message.channel.send(chunk)
