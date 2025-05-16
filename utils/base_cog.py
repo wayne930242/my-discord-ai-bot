@@ -132,19 +132,40 @@ class BaseCog(commands.Cog):
                     continue
 
                 if first_part:
-                    await thinking_msg.edit(content=part_content)
+                    try:
+                        await thinking_msg.edit(content=part_content)
+                    except Exception as log_e:
+                        print(
+                            f"[DEBUG] Failed to edit thinking_msg on first part: {log_e}"
+                        )
+                        raise
                     full_response_parts.append(part_content)
                     first_part = False
                 else:
                     last = full_response_parts[-1]
                     if len(last) + len(part_content) < 1980:
                         full_response_parts[-1] = last + part_content
-                        await thinking_msg.edit(content=full_response_parts[-1])
+                        try:
+                            await thinking_msg.edit(content=full_response_parts[-1])
+                        except Exception as log_e:
+                            print(
+                                f"[DEBUG] Failed to edit thinking_msg on merge: {log_e}"
+                            )
+                            raise
                     else:
-                        await message.channel.send(part_content)
+                        try:
+                            await message.channel.send(part_content)
+                        except Exception as e:
+                            print(f"❌ Cannot send message, error: {e}")
 
             if first_part:
-                await thinking_msg.edit(content="No response from agent.")
+                try:
+                    await thinking_msg.edit(content="No response from agent.")
+                except Exception as log_e:
+                    print(
+                        f"[DEBUG] Failed to edit thinking_msg for empty response: {log_e}"
+                    )
+                    await message.channel.send("No response from agent.")
 
         except Exception as e:
             print(f"[BaseCog_on_message] Error processing message: {e}")
@@ -152,7 +173,13 @@ class BaseCog(commands.Cog):
                 anim_task.cancel()
             try:
                 await thinking_msg.edit(content=self.ERROR_MESSAGE)
-            except discord.errors.NotFound:
+            except discord.errors.NotFound as nf:
+                print(
+                    f"[DEBUG] thinking_msg not found when editing error message: {nf}"
+                )
+                await message.channel.send(self.ERROR_MESSAGE)
+            except Exception as log_e:
+                print(f"[DEBUG] Failed to edit error message: {log_e}")
                 await message.channel.send(self.ERROR_MESSAGE)
         finally:
             if anim_task and not anim_task.done():
